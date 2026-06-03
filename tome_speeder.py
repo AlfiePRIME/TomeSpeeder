@@ -418,29 +418,30 @@ def fantasy_qss() -> str:
     """
 
 
-def make_window_icon() -> QIcon:
-    """A small parchment-and-wax-seal icon."""
-    pm = QPixmap(64, 64)
+def render_icon_pixmap(size: int = 64) -> QPixmap:
+    """Render the parchment-and-wax-seal icon at the given pixel size."""
+    from PyQt6.QtGui import QColor, QPen
+    pm = QPixmap(size, size)
     pm.fill(Qt.GlobalColor.transparent)
     p = QPainter(pm)
     p.setRenderHint(QPainter.RenderHint.Antialiasing)
-    # parchment rectangle
-    p.setBrush(Qt.GlobalColor.transparent)
+    s = size / 64
     path = QPainterPath()
-    path.addRoundedRect(6, 4, 52, 56, 4, 4)
-    p.fillPath(path, Qt.GlobalColor.white)
-    from PyQt6.QtGui import QColor, QPen
+    path.addRoundedRect(6 * s, 4 * s, 52 * s, 56 * s, 4 * s, 4 * s)
     p.fillPath(path, QColor(PARCHMENT))
-    p.setPen(QPen(QColor(GOLD), 2))
+    p.setPen(QPen(QColor(GOLD), 2 * s))
     p.drawPath(path)
-    # wax seal
     p.setBrush(QColor(WAX))
-    p.setPen(QPen(QColor("#3a0a0a"), 1))
-    p.drawEllipse(20, 24, 24, 24)
-    p.setPen(QPen(QColor(GOLD_LIGHT), 1))
-    p.drawEllipse(26, 30, 12, 12)
+    p.setPen(QPen(QColor("#3a0a0a"), 1 * s))
+    p.drawEllipse(int(20 * s), int(24 * s), int(24 * s), int(24 * s))
+    p.setPen(QPen(QColor(GOLD_LIGHT), 1 * s))
+    p.drawEllipse(int(26 * s), int(30 * s), int(12 * s), int(12 * s))
     p.end()
-    return QIcon(pm)
+    return pm
+
+
+def make_window_icon() -> QIcon:
+    return QIcon(render_icon_pixmap(64))
 
 
 class TomeSpeeder(QMainWindow):
@@ -702,6 +703,19 @@ class TomeSpeeder(QMainWindow):
 
 
 def main() -> int:
+    # Installer hook: render the app icon to a PNG and exit, no GUI shown.
+    if len(sys.argv) >= 3 and sys.argv[1] == "--write-icon":
+        out = Path(sys.argv[2])
+        size = int(sys.argv[3]) if len(sys.argv) >= 4 else 256
+        out.parent.mkdir(parents=True, exist_ok=True)
+        # QPainter needs a QApplication, but offscreen is fine.
+        os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+        app = QApplication(sys.argv[:1])
+        render_icon_pixmap(size).save(str(out), "PNG")
+        del app
+        print(f"wrote icon to {out}")
+        return 0
+
     app = QApplication(sys.argv)
     app.setApplicationName("Tome Speeder")
     win = TomeSpeeder()

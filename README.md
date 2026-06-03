@@ -22,15 +22,41 @@ dependencies on first run.
 - Confirmation prompt before overwriting the original.
 - Remembers the last folder you browsed.
 
+## One-line install
+
+**Linux / macOS** (bash, zsh):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/AlfiePRIME/TomeSpeeder/main/install.sh | bash
+```
+
+**Windows** (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/AlfiePRIME/TomeSpeeder/main/install.ps1 | iex
+```
+
+Each installer:
+
+1. Installs [`uv`](https://docs.astral.sh/uv/) if missing.
+2. Installs `ffmpeg` if missing (apt / dnf / pacman / zypper / apk / brew /
+   winget — auto-detected).
+3. Downloads `tome_speeder.py` to a stable location.
+4. Renders the app icon.
+5. Creates a launcher (Linux `.desktop`, macOS `.command` in `~/Applications`,
+   Windows Start Menu shortcut).
+
+After install, search your launcher for **Tome Speeder**.
+
 ## Requirements
 
-- Linux with a desktop environment (tested on GNOME).
-- `ffmpeg` and `ffprobe` on `PATH`.
-- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) for the
-  zero-config Python/PyQt6 bootstrap. Alternatively install `PyQt6` via your
-  system package manager and run the script with `python3`.
+- A desktop environment (tested on GNOME; works on KDE / macOS / Windows).
+- `ffmpeg` and `ffprobe` on `PATH` (handled by the installer).
+- [`uv`](https://docs.astral.sh/uv/) for the zero-config Python/PyQt6
+  bootstrap (handled by the installer). Alternatively, install `PyQt6`
+  yourself and run the script with `python3`.
 
-## Run it
+## Manual run
 
 ```sh
 ./tome_speeder.py
@@ -40,29 +66,6 @@ uv run tome_speeder.py
 
 First launch downloads PyQt6 into a uv-managed venv (a few seconds);
 subsequent launches are instant.
-
-## Install as a GNOME app
-
-Save the example below to `~/.local/share/applications/tome-speeder.desktop`,
-edit the two absolute paths, then run
-`update-desktop-database ~/.local/share/applications`. The app will appear in
-the Activities overview.
-
-```ini
-[Desktop Entry]
-Type=Application
-Version=1.0
-Name=Tome Speeder
-GenericName=Audiobook Speed Converter
-Comment=Quicken m4b and other audiobooks without warping the bard's voice
-Exec=/absolute/path/to/uv run --quiet /absolute/path/to/tome_speeder.py
-Icon=/absolute/path/to/icon.png
-Terminal=false
-Categories=AudioVideo;AudioVideoEditing;
-Keywords=audiobook;m4b;mp3;speed;tempo;ffmpeg;
-StartupNotify=true
-StartupWMClass=Tome Speeder
-```
 
 ## Library folder
 
