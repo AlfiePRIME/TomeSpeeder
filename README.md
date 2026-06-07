@@ -1,12 +1,15 @@
 # Tome Speeder
 
-A small fantasy-themed Linux GUI for permanently speeding up audiobook files
+A small fantasy-themed app for permanently speeding up audiobook files
 (m4b, m4a, mp3, opus, ogg, flac, wav, aac, wma) without warping the narrator's
 pitch. The output replaces the original file in place.
 
-Built on PyQt6 + ffmpeg (`atempo` filter chain). Distributed as a single
-self-bootstrapping Python script — [uv](https://docs.astral.sh/uv/) handles
-dependencies on first run.
+Two flavours:
+
+- **Desktop** — single-file PyQt6 GUI you run locally.
+- **Web / Docker** — FastAPI server you point at a library folder; browse and
+  convert from any browser on your network. Same fantasy look, same ffmpeg
+  `atempo` engine, with live WebSocket progress.
 
 ## Features
 
@@ -22,7 +25,48 @@ dependencies on first run.
 - Confirmation prompt before overwriting the original.
 - Remembers the last folder you browsed.
 
-## One-line install
+## Run as a Docker container (recommended for libraries on a NAS)
+
+Point the included `docker-compose.yml` at your library folder and bring it
+up:
+
+```sh
+git clone https://github.com/AlfiePRIME/TomeSpeeder.git
+cd TomeSpeeder
+# Edit the volume line in docker-compose.yml to match your library path,
+# then:
+docker compose up -d --build
+```
+
+Open **http://&lt;host&gt;:8080** in a browser. The default compose file mounts
+`/mnt/TrueNAS/media/Library/audiobooks` into the container at `/audiobooks`
+and exposes the UI on port 8080.
+
+Configuration via environment variables (set in `docker-compose.yml`):
+
+| Variable        | Default       | Meaning                                      |
+| --------------- | ------------- | -------------------------------------------- |
+| `LIBRARY_ROOT`  | `/audiobooks` | Where the library is mounted inside the container. |
+| `ALLOW_REPLACE` | `1`           | Set to `0` to make the server refuse to overwrite originals (read-only mode). |
+
+The server runs ffmpeg locally inside the container (writing the encode to
+the container's `/tmp`), then bulk-copies the finished file back over the
+library mount and atomically replaces the original. This keeps NFS-mounted
+libraries responsive: only one big sequential write hits the network, not
+every encoded frame.
+
+### Without compose
+
+```sh
+docker build -t tome-speeder .
+docker run -d --name tome-speeder \
+    -p 8080:8080 \
+    -v /mnt/TrueNAS/media/Library/audiobooks:/audiobooks \
+    --user "$(id -u):$(id -g)" \
+    tome-speeder
+```
+
+## One-line install (desktop app)
 
 **Linux / macOS** (bash, zsh):
 

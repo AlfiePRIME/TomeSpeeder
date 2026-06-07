@@ -1,0 +1,11 @@
+.git/
+.gitignore
+__pycache__/
+*.pyc
+.venv/
+.uv/
+README.md
+LICENSE
+install.sh
+install.ps1
+tome_speeder.py

@@ -1,0 +1,23 @@
+services:
+  tome-speeder:
+    build: .
+    image: tome-speeder:latest
+    container_name: tome-speeder
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - LIBRARY_ROOT=/audiobooks
+      # ALLOW_REPLACE=0 makes the API refuse to overwrite originals (read-only mode).
+      - ALLOW_REPLACE=1
+      # Match host UID/GID so files we replace keep your ownership.
+      - PUID=1000
+      - PGID=1000
+    user: "1000:1000"
+    volumes:
+      - /mnt/TrueNAS/media/Library/audiobooks:/audiobooks
+      # Local tmp for encoding (kept separate from the NFS-backed library).
+      - tome-speeder-tmp:/tmp
+
+volumes:
+  tome-speeder-tmp:

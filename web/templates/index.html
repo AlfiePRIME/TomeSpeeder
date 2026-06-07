@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tome Speeder</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect x='6' y='4' width='52' height='56' rx='4' fill='%23f1e2bf' stroke='%23a8802c' stroke-width='2'/><circle cx='32' cy='36' r='12' fill='%237a1f1f' stroke='%233a0a0a'/><circle cx='32' cy='36' r='6' fill='none' stroke='%23d8b04a'/></svg>">
+</head>
+<body>
+<main class="page">
+
+  <header class="title-block">
+    <h1>⚜ Tome Speeder ⚜</h1>
+    <p class="subtitle">“Quicken thy spoken tomes without warping the bard's voice.”</p>
+    <div class="library-root">📜 {{ library_root }}</div>
+  </header>
+
+  <section class="card">
+    <h2>I. Choose thy tome</h2>
+    <nav class="crumbs" id="crumbs"></nav>
+    <div class="listing" id="listing">
+      <div class="placeholder">Loading…</div>
+    </div>
+    <div class="selected" id="selected">…no tome selected…</div>
+  </section>
+
+  <section class="card">
+    <h2>II. Set the pace of the tale</h2>
+    <div class="speed-readout" id="speed-readout">1.00×</div>
+    <input type="range" id="speed" min="5" max="60" step="1" value="20" class="slider">
+    <div class="ticks">
+      <span>0.25×</span><span>1×</span><span>2×</span><span>3×</span>
+    </div>
+    <div class="presets" id="presets">
+      <button data-v="20">1×</button>
+      <button data-v="25">1.25×</button>
+      <button data-v="30">1.5×</button>
+      <button data-v="35">1.75×</button>
+      <button data-v="40">2×</button>
+      <button data-v="50">2.5×</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>III. Cast the spell</h2>
+    <div class="action-row">
+      <button id="quicken" class="primary" disabled>✦  Quicken the Tome  ✦</button>
+      <button id="cancel" class="ghost" disabled>Abjure</button>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label">Awaiting incantation…</div>
+    </div>
+    <div class="status" id="status"></div>
+  </section>
+
+</main>
+
+<div id="confirm" class="modal hidden">
+  <div class="modal-card">
+    <h3>Replace the original?</h3>
+    <p>This will <b>overwrite</b> the original tome at <span id="confirm-speed">1.00×</span> speed:</p>
+    <code id="confirm-path"></code>
+    <p class="warn">There is no undo.</p>
+    <div class="modal-actions">
+      <button id="confirm-cancel" class="ghost">Cancel</button>
+      <button id="confirm-ok" class="primary">Yes, quicken it</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
