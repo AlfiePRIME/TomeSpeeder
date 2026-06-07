@@ -45,6 +45,12 @@ from PyQt6.QtWidgets import (
 SUPPORTED_INPUT = {".m4b", ".m4a", ".mp3", ".aac", ".opus", ".ogg", ".oga", ".flac", ".wav", ".wma"}
 DEFAULT_LIBRARY = Path("/mnt/TrueNAS/media/Library/audiobooks")
 
+# Some audiobook m4a/m4b files (typically iTunes/Audible-derived) carry a
+# malformed chapter track that makes ffmpeg refuse to open them even though the
+# audio streams are fine. -ignore_chapters 1 skips that track. We lose chapter
+# markers in the output, but the alternative is "won't open at all".
+FFMPEG_INPUT_FLAGS = ["-ignore_chapters", "1"]
+
 
 def atempo_chain(speed: float) -> str:
     """Compose an atempo filter chain. Each atempo accepts 0.5–2.0, so chain
@@ -68,7 +74,7 @@ def probe_duration(path: Path) -> float | None:
     try:
         out = subprocess.run(
             [
-                "ffprobe", "-v", "error",
+                "ffprobe", "-v", "error", *FFMPEG_INPUT_FLAGS,
                 "-show_entries", "format=duration",
                 "-of", "default=noprint_wrappers=1:nokey=1",
                 str(path),
@@ -89,7 +95,7 @@ def probe_audio_bitrate(path: Path) -> int | None:
     try:
         out = subprocess.run(
             [
-                "ffprobe", "-v", "error",
+                "ffprobe", "-v", "error", *FFMPEG_INPUT_FLAGS,
                 "-select_streams", "a:0",
                 "-show_entries", "stream=bit_rate:format=bit_rate",
                 "-of", "default=noprint_wrappers=1:nokey=1",
@@ -181,6 +187,7 @@ class ConvertWorker(QThread):
 
         cmd = [
             "ffmpeg", "-hide_banner", "-nostdin", "-y",
+            *FFMPEG_INPUT_FLAGS,
             "-i", str(self.src),
             "-vn",
             "-filter:a", atempo_chain(self.speed),
